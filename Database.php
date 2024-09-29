@@ -4,11 +4,12 @@ class Database
 {
     public $connection;
 
+
     // MYSQL have own password in my own pc
     // public function __construct($config, $username = 'root', $password = '09285980040')
 
-    // MYSQL have not password:
-    public function __construct($config, $username = 'root', $password = '')
+
+    public function __construct($config, $username = 'root', $password = '09285980040')
     {
         $dsn = 'mysql:' . http_build_query($config, '', ';');
 
@@ -17,11 +18,11 @@ class Database
         ]);
     }
 
-    public function query($query)
+    public function query($query, $params = [])
     {
         $statement = $this->connection->prepare($query);
 
-        $statement->execute();
+        $statement->execute($params);
 
         return $statement;
     }
