@@ -1,19 +1,27 @@
 <?php
 
-const BASE_PATH = __DIR__ . '/../';
+use Core\App;
+use Core\Validator;
+use Core\Database;
 
-require BASE_PATH . 'Core/functions.php';
+$db = App::resolve(Database::class);
+$errors = [];
 
-spl_autoload_register(function ($class) {
-    $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+if (! Validator::string($_POST['body'], 1, 1000)) {
+    $errors['body'] = 'A body of no more than 1,000 characters is required.';
+}
 
-    require base_path("{$class}.php");
-});
+if (! empty($errors)) {
+    return view("notes/create.view.php", [
+        'heading' => 'Create Note',
+        'errors' => $errors
+    ]);
+}
 
-$router = new \Core\Router();
-$routes = require base_path('routes.php');
+$db->query('INSERT INTO notes(body, user_id) VALUES(:body, :user_id)', [
+    'body' => $_POST['body'],
+    'user_id' => 1
+]);
 
-$uri = parse_url($_SERVER['REQUEST_URI'])['path'];
-$method = $_POST['_method'] ?? $_SERVER['REQUEST_METHOD'];
-
-$router->route($uri, $method);
+header('location: /notes');
+die();
